@@ -9,6 +9,14 @@ products = [
     {"id": 3, "name": "烏龍奶茶", "num": 9},
 ]
 
+products_dic = {
+    1: {"id": 1, "name": "伯爵紅茶", "num": 7},
+    2: {"id": 2, "name": "梅子綠茶", "num": 8},
+    3: {"id": 3, "name": "烏龍奶茶", "num": 9},
+}
+
+name_index = {"伯爵紅茶": 1, "梅子綠茶": 2, "烏龍奶茶": 3}
+
 
 @app.route("/add_product", methods=["POST"])
 def add_product():
@@ -147,39 +155,100 @@ def patch_product(product_id):
         return jsonify({"error": "請至少提供一個欄位"})
 
     # 尋找指定更新的產品
+    # for product in products:
+    #     if product["id"] == product_id:
+    # 修改產品名稱
+    # if "pname" in data:
+    #     pname = data.get("pname")
+    #     if pname is None:
+    #         return jsonify({"error": "請提供產品名稱和數量"}), 400
+    #     if not isinstance(pname, str):
+    #         return jsonify({"error": "產品名稱必須是文字格式"}), 400
+
+    #     # 檢查產品名稱
+    #     for p in products:
+    #         if p["name"] == pname and p["id"] != product_id:
+    #             return jsonify({"message": "產品名稱存在，請重新命名。"}), 400
+
+    #     product["name"] = pname
+
+    # 修改產品數量
+    # if "pnum" in data:
+    #     pnum = data.get("pnum")
+    #     if pnum is None:
+    #         return jsonify({"error": "請提供產品數量"}), 400
+    #     if not isinstance(pnum, (int, float)):
+    #         return jsonify({"error": "產品數量必須是數字格式"}), 400
+    #     if pnum < 0:
+    #         return jsonify({"error": "產品數量必須不能是負數"}), 400
+
+    #     product["num"] = pnum
+
+    # 資料修改完回傳
+    # return (
+    #     jsonify(
+    #         {
+    #             "message": "產品更新成功。",
+    #             "product": product,
+    #             "products": products,
+    #         }
+    #     ),
+    #     200,
+    # )
+
+    # dictionary
+    product = products_dic.get(product_id)
+
+    if product is None:
+        return jsonify({"error": "請至少提供一個欄位"}), 400
+
+    if "pname" in data:
+        pname = data.get("pname")
+        if pname is None:
+            return jsonify({"error": "請提供產品名稱和數量"}), 400
+        if not isinstance(pname, str):
+            return jsonify({"error": "產品名稱必須是文字格式"}), 400
+
+        if pname in name_index and name_index[pname] != product_id:
+            return jsonify({"message": "產品名稱存在，請重新命名。"}), 400
+
+        product["name"] = pname
+
+    if "pnum" in data:
+        pnum = data.get("pnum")
+        if pnum is None:
+            return jsonify({"error": "請提供產品數量"}), 400
+        if not isinstance(pnum, (int, float)):
+            return jsonify({"error": "產品數量必須是數字格式"}), 400
+        if pnum < 0:
+            return jsonify({"error": "產品數量必須不能是負數"}), 400
+
+        product["num"] = pnum
+
+    return (
+        jsonify(
+            {
+                "message": "產品更新成功。",
+                "product": product,
+                "products": products_dic,
+            }
+        ),
+        200,
+    )
+
+    # return jsonify({"error": "查無此產品"}), 400
+
+
+@app.route("/products/<int:product_id>", methods=["DELETE"])
+def delete_products(product_id):
+    # 尋找要刪除的產品
     for product in products:
         if product["id"] == product_id:
-            # 修改產品名稱
-            if "pname" in data:
-                pname = data.get("pname")
-                if not pname:
-                    return jsonify({"error": "請提供產品名稱和數量"}), 400
-                if not isinstance(pname, str):
-                    return jsonify({"error": "產品名稱必須是文字格式"}), 400
-
-                # 檢查產品名稱
-                for p in products:
-                    if p["name"] == pname and p["id"] != product_id:
-                        return jsonify({"message": "產品名稱存在，請重新命名。"}), 400
-
-                product["name"] = pname
-
-            # 修改產品數量
-            if "pnum" in data:
-                pnum = data.get("pnum")
-
-                if not isinstance(pnum, (int, float)):
-                    return jsonify({"error": "產品數量必須是數字格式"}), 400
-                if pnum < 0:
-                    return jsonify({"error": "產品數量必須不能是負數"}), 400
-
-                product["num"] = pnum
-
-            # 資料修改完回傳
+            products.remove(product)
             return (
                 jsonify(
                     {
-                        "message": "產品更新成功。",
+                        "message": "產品刪除成功",
                         "product": product,
                         "products": products,
                     }
@@ -187,7 +256,7 @@ def patch_product(product_id):
                 200,
             )
 
-    return jsonify({"error": "請至少提供一個欄位"})
+    return jsonify({"error": "查無此產品"}), 400
 
 
 @app.route("/test")
