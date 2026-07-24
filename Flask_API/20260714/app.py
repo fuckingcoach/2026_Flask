@@ -261,8 +261,9 @@ def delete_products(product_id):
 
 @app.route("/test")
 def test():
-    return "app is working!"
+    return "這是6號電腦!"
 
 
 if __name__ == "__main__":
+    # app.run(host="0.0.0.0", port=5000, debug=True)
     app.run(debug=True)
